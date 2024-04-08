@@ -163,7 +163,7 @@ namespace WebGestionClientes.Controllers
                 string tipoMovimiento = movimientoVM.TipoMovimiento;
                 var cliente = _DBContext.Clientes.FirstOrDefault(c => c.ClienteId == clienteId);
                 movimientoVM.CuentaCorriente.Cliente = cliente;
-
+                movimientoVM.CuentaCorriente.ClienteId = cliente.ClienteId;
 
                 CuentaCorriente nm = new CuentaCorriente();
                 nm.Descripcion = movimientoVM.CuentaCorriente.Descripcion;
@@ -175,7 +175,7 @@ namespace WebGestionClientes.Controllers
                 if (movimientoVM.CuentaCorriente.ImporteDebito > movimientoVM.CuentaCorriente.Cliente.Saldo)
                 {
                     ModelState.AddModelError("", "No puede realizar un débito mayor que el saldo actual.");
-                    return View("ClienteMovimiento", nm);
+                    return View("ClienteMovimiento", movimientoVM);
                 }
 
                 _DBContext.CuentaCorrientes.Add(nm);
