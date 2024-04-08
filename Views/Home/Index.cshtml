@@ -1,0 +1,88 @@
+﻿@model List<WebGestionClientes.Models.Cliente>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+<div class="text-center">
+    <h2 class="display-4">Gestion Clientes</h2>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Lista de clientes</h5>
+    </div>
+    <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+            <button id="toggleInactiveButton" class="btn btn-secondary btn-sm" aria-label="Mostrar/ocultar clientes inactivos">
+                <span class="material-icons-outlined">visibility_off</span>
+            </button>
+
+            <a class="btn btn-success btn-sm" asp-action="ClienteDetalle" asp-controller="Home" asp-route-idCliente="0">Crear Nuevo</a>
+        </div>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Saldo</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="@item.Estado.ToLower()">
+                    <td>@item.Nombre</td>
+                    <td>@item.Apellido</td>
+                    <td>@item.Saldo</td>
+                    <td>@item.Estado</td>
+                    <td>
+                        @if (item.Estado == "activo")
+                        {
+                            <a class="btn btn-primary btn-sm" asp-action="ClienteDetalle" asp-controller="Home" asp-route-idCliente="@item.ClienteId">Editar</a>
+                            <a class="btn btn-danger btn-sm" asp-action="Eliminar" asp-controller="Home" asp-route-idCliente="@item.ClienteId">Eliminar</a>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary btn-sm" disabled>Editar</button>
+                            <button class="btn btn-danger btn-sm" disabled>Eliminar</button>
+                        }
+                        <a class="btn btn-info btn-sm" asp-action="CuentaCorriente" asp-controller="Home" asp-route-idCliente="@item.ClienteId">Movimientos</a>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    var clientesInactivosVisible = false;
+
+    document.getElementById('toggleInactiveButton').addEventListener('click', function () {
+        var clientesInactivos = document.querySelectorAll('tbody tr.inactivo');
+
+        clientesInactivos.forEach(function (cliente) {
+            cliente.style.display = clientesInactivosVisible ? 'table-row' : 'none';
+        });
+
+        clientesInactivosVisible = !clientesInactivosVisible;
+
+        var buttonText = clientesInactivosVisible ? 'visibility_off' : 'visibility';
+        var buttonLabel = clientesInactivosVisible ? 'Ocultar clientes inactivos' : 'Mostrar clientes inactivos';
+
+        document.getElementById('toggleInactiveButton').innerHTML = '<span class="material-icons-outlined">' + buttonText + '</span>';
+        document.getElementById('toggleInactiveButton').setAttribute('aria-label', buttonLabel);
+    });
+</script>

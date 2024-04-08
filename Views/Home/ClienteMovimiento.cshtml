@@ -1,0 +1,93 @@
+﻿@model WebGestionClientes.Models.ViewModels.MovimientoVM
+
+@{
+    ViewData["Title"] = "ClienteMovimiento";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Registrar nuevo movimiento</h1>
+
+<div class="row">
+    <div class="col-sm-4">
+        <form asp-action="CrearMovimiento" asp-controller="Home" method="post">
+            <div class="mb-2 div-credito">
+                <label class="form-label" asp-for="CuentaCorriente.ImporteCredito">Importe credito</label>
+                <input class="form-control form-control-sm" asp-for="CuentaCorriente.ImporteCredito" type="number" id="importeCredito" />
+            </div>
+            <div class="mb-2 div-debito">
+                <label class="form-label" asp-for="CuentaCorriente.ImporteDebito">Importe debito</label>
+                <input class="form-control form-control-sm" asp-for="CuentaCorriente.ImporteDebito" type="number" id="importeDebito" />
+            </div>
+            <div class="mb-2">
+                <label class="form-label" asp-for="CuentaCorriente.Descripcion">Descripción</label>
+                <input class="form-control form-control-sm" asp-for="CuentaCorriente.Descripcion" type="text" required/>
+            </div>
+
+            <div class="mb-2">
+                <button class="btn btn-primary btn-sm w-25" type="submit">Guardar</button>
+                <a class="btn btn-dark btn-sm" asp-action="CuentaCorriente" asp-controller="Home" asp-route-idCliente="@Model.CuentaCorriente.ClienteId">Volver</a>
+
+            </div>
+
+            @* para enviar los datos del tipomovimiento con el formulario *@
+            <input type="hidden" id="tipoMovimiento" name="TipoMovimiento" value="@Model.TipoMovimiento" />
+
+            @* para enviar los datos del cliente *@
+            <input type="hidden" id="idCliente" name="ClienteId" value="@Model.CuentaCorriente.ClienteId" />
+
+
+        </form>
+
+        <!-- Sección para mostrar los errores del ModelState -->
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger" role="alert">
+                <ul>
+                    @foreach (var modelError in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@modelError.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    var tipoMovimiento = '@Model.TipoMovimiento';
+
+    function deshabilitarInputs() {
+        var divCredito = document.querySelector('.div-credito');
+        var divDebito = document.querySelector('.div-debito');
+
+        if (tipoMovimiento === 'credito') {
+            divDebito.style.display = 'none';
+        } else if (tipoMovimiento === 'debito') {
+            divCredito.style.display = 'none';
+        }
+    }
+    deshabilitarInputs();
+
+    function configurarCampos() {
+        var inputCredito = document.getElementById('importeCredito');
+        var inputDebito = document.getElementById('importeDebito');
+
+        if (tipoMovimiento === 'credito') {
+            inputCredito.required = true;
+            inputDebito.required = false;
+            inputDebito.value = ''; 
+        } else if (tipoMovimiento === 'debito') {
+            inputDebito.required = true;
+            inputCredito.required = false;
+            inputCredito.value = ''; 
+        }
+    }
+    configurarCampos(); 
+
+    document.getElementById("tipoMovimiento").addEventListener("change", function () {
+        tipoMovimiento = this.value; 
+        configurarCampos();
+    });
+   
+    
+</script>

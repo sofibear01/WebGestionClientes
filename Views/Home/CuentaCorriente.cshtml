@@ -1,0 +1,60 @@
+﻿@model List<WebGestionClientes.Models.CuentaCorriente>
+@{
+    ViewData["Title"] = "CuentaCorriente";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    decimal saldoCliente = ViewBag.SaldoCliente ?? 0; // Si ViewBag.SaldoCliente es null, establecerlo como 0
+}
+
+<div class="card">
+    <div class="card-header">
+        <div class="mb-2">
+            <a class="btn btn-dark btn-sm" asp-action="Index" asp-controller="Home">Volver</a>
+
+        </div>
+        <h5>Movimientos del Cliente</h5>
+    </div>
+    <div class="card-body">
+        <button class="btn btn-primary btn-sm" onclick="setTipoMovimiento('credito')">Registrar Crédito</button>
+        <button class="btn btn-primary btn-sm" onclick="setTipoMovimiento('debito')">Registrar Débito</button>
+
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Credito</th>
+                <th>Debito</th>
+                <th>Descripcion</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.FhMovimiento</td>
+                    <td>@item.ImporteCredito</td>
+                    <td>@(item.ImporteDebito.HasValue ? "-" + item.ImporteDebito.ToString() : "")</td>
+                    <td>@item.Descripcion</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<form id="formTipoMovimiento" method="post" asp-action="ClienteMovimiento" asp-controller="Home">
+    <input type="hidden" id="tipoMovimiento" name="tipoMovimiento" />
+    <input type="hidden" id="idCliente" name=idCliente value="@ViewData["idCliente"]" />
+</form>
+
+@* <label>Total saldo: @ViewBag.SaldoCliente</label> *@
+
+
+<script>
+    function setTipoMovimiento(tipo) {
+        document.getElementById('tipoMovimiento').value = tipo;
+        document.getElementById('formTipoMovimiento').submit();
+    }
+</script>

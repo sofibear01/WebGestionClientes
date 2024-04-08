@@ -1,0 +1,39 @@
+﻿@model WebGestionClientes.Models.Cliente
+@{
+    ViewData["Title"] = "Eliminar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3 class="text-danger"> ¿Está seguro de eliminar el cliente?</h3>
+<hr />
+<div class="row">
+    <div class="col-sm-4">
+        <form asp-action="Eliminar" asp-controller="Home" method="post">
+            <input type="hidden" asp-for="ClienteId" />
+
+            <div class="mb-2">
+                <label class="form-label" asp-for="Nombre">Nombre</label>
+                <input class="form-control form-control-sm" asp-for="Nombre" type="text" readonly />
+
+            </div>
+            <div class="mb-2">
+                <label class="form-label" asp-for="Apellido">Apellido</label>
+                <input class="form-control form-control-sm" asp-for="Apellido" type="text" readonly />
+
+            </div>
+            <div class="mb-2">
+                <label class="form-label" asp-for="Saldo">Saldo</label>
+                <input class="form-control form-control-sm" asp-for="Saldo" type="text" value="@Model.Saldo.ToString("N2")" readonly />
+
+            </div>
+
+            <div class="mb-2">
+                <button class="btn btn-danger btn-sm w-25" type="submit">Eliminar</button>
+                <a class="btn btn-dark btn-sm" asp-action="Index" asp-controller="Home">Volver</a>
+
+
+            </div>
+
+        </form>
+    </div>
+</div>
