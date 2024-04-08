@@ -57,6 +57,7 @@ namespace WebGestionClientes.Controllers
                 }
                 else
                 {
+                    clienteVM.Cliente.Estado = "activo";
                     _DBContext.Clientes.Update(clienteVM.Cliente);
                 }
 
@@ -91,7 +92,7 @@ namespace WebGestionClientes.Controllers
             }
             else
             {
-                TempData["ErrorMessage"] = "Error al eliminar el usuario: el saldo debe ser 0";
+                TempData["ErrorMessage"] = "Error al eliminar, el cliente no debe tener saldo";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -104,11 +105,7 @@ namespace WebGestionClientes.Controllers
                 .Where(m => m.ClienteId == idCliente)
                 .ToList();
 
-            // Calcular el saldo del cliente
-            decimal saldoCliente = Convert.ToDecimal(movimientosCliente.Sum(m => Convert.ToDecimal(m.ImporteCredito))) - Convert.ToDecimal(movimientosCliente.Sum(m => Convert.ToDecimal(m.ImporteDebito)));
-
             ViewData["idCliente"] = idCliente;
-            ViewBag.SaldoCliente = saldoCliente; // Opcional: utilizando ViewBag
 
             return View(movimientosCliente);
         }
@@ -117,32 +114,41 @@ namespace WebGestionClientes.Controllers
         [HttpGet]
         public IActionResult ClienteMovimiento(int idCliente)
         {
-            var viewModel = new MovimientoVM
-            {
-                CuentaCorriente = new CuentaCorriente
-                {
-                    ClienteId = idCliente
-                }
-            };
 
-            decimal saldoCliente = _DBContext.Clientes
-            .Where(c => c.ClienteId == idCliente)
-            .Select(c => c.Saldo)
-            .FirstOrDefault();
+            var cliente = _DBContext.Clientes.FirstOrDefault(c => c.ClienteId == idCliente);
 
-            // Guardar el saldo en el ViewBag
-            ViewBag.SaldoCliente = saldoCliente;
-            return View(viewModel);
+            //var viewModel = new MovimientoVM
+            //{
+            //    CuentaCorriente = new CuentaCorriente
+            //    {
+            //        Cliente = cliente
+            //    }
+            //};
+
+            var vm = new MovimientoVM();
+            vm.CuentaCorriente = new CuentaCorriente();
+            vm.CuentaCorriente.Cliente = cliente;
+
+            //decimal saldoCliente = _DBContext.Clientes
+            //.Where(c => c.ClienteId == idCliente)
+            //.Select(c => c.Saldo)
+            //.FirstOrDefault();
+
+            ViewBag.SaldoCliente = cliente.Saldo;
+            return View(vm);
         }
 
         [HttpPost]
         public IActionResult ClienteMovimiento(string tipoMovimiento, int idCliente)
         {
+            var cliente = _DBContext.Clientes.FirstOrDefault(c => c.ClienteId == idCliente);
+
             var viewModel = new MovimientoVM
             {
                 TipoMovimiento = tipoMovimiento,
                 CuentaCorriente = new CuentaCorriente
                 {
+                    Cliente = cliente,
                     ClienteId = idCliente
                 }
             };
@@ -155,29 +161,25 @@ namespace WebGestionClientes.Controllers
             try
             {
                 string tipoMovimiento = movimientoVM.TipoMovimiento;
-                movimientoVM.CuentaCorriente.ClienteId = clienteId;
-                movimientoVM.CuentaCorriente.Cliente = _DBContext.Clientes.FirstOrDefault(c => c.ClienteId == clienteId);
+                var cliente = _DBContext.Clientes.FirstOrDefault(c => c.ClienteId == clienteId);
+                movimientoVM.CuentaCorriente.Cliente = cliente;
 
-                // Crear un nuevo objeto de Movimiento con los datos del formulario
+
                 CuentaCorriente nm = new CuentaCorriente();
                 nm.Descripcion = movimientoVM.CuentaCorriente.Descripcion;
-                nm.Cliente = movimientoVM.CuentaCorriente.Cliente;
+                nm.Cliente = cliente;
                 nm.ImporteDebito = movimientoVM.CuentaCorriente.ImporteDebito;
                 nm.ImporteCredito = movimientoVM.CuentaCorriente.ImporteCredito;
-                nm.FhMovimiento = DateTime.Now;
+                nm.FhMovimiento = DateTime.UtcNow;
 
                 if (movimientoVM.CuentaCorriente.ImporteDebito > movimientoVM.CuentaCorriente.Cliente.Saldo)
                 {
-                    ModelState.AddModelError("", "No puede realizar un débito mayor que su saldo actual.");
-                    // Redirigir de vuelta a la vista ClienteMovimiento con el modelo actual
-                    return View("ClienteMovimiento", movimientoVM);
+                    ModelState.AddModelError("", "No puede realizar un débito mayor que el saldo actual.");
+                    return View("ClienteMovimiento", nm);
                 }
 
                 _DBContext.CuentaCorrientes.Add(nm);
                 _DBContext.SaveChanges();
-
-                // Actualizar el saldo del cliente según el tipo de movimiento
-                Cliente cliente = _DBContext.Clientes.FirstOrDefault(c => c.ClienteId == movimientoVM.CuentaCorriente.ClienteId);
 
                 if (movimientoVM.TipoMovimiento == "credito")
                 {
@@ -190,17 +192,13 @@ namespace WebGestionClientes.Controllers
                 }
                 _DBContext.SaveChanges();
 
-
-                // Redirigir a la acción CuentaCorriente con el ID del cliente
                 return RedirectToAction("CuentaCorriente", new { idCliente = movimientoVM.CuentaCorriente.ClienteId });
             }
             catch (Exception ex)
             {
-                // Manejar cualquier excepción aquí
                 ModelState.AddModelError("", "Error al guardar el movimiento: " + ex.Message);
             }
 
-            // Si hay un error, devolver la vista con el modelo para mostrar los mensajes de error
             return View(movimientoVM);
         }
     }

@@ -38,7 +38,7 @@
 
         </form>
 
-        <!-- Sección para mostrar los errores del ModelState -->
+        <!-- errores del ModelState -->
         @if (!ViewData.ModelState.IsValid)
         {
             <div class="alert alert-danger" role="alert">
@@ -88,6 +88,8 @@
         tipoMovimiento = this.value; 
         configurarCampos();
     });
+
+    console.log('@Html.Raw(Json.Serialize(Model.CuentaCorriente.Cliente))');
+
    
-    
 </script>

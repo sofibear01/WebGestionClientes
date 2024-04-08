@@ -22,7 +22,7 @@ body {
     background-color: #e8e5ff;
 }
 
-.btn-info {
+/*.btn-info {
     background-color: #5f16ff; 
     border-color: #5f16ff;
     color: #fff; 
@@ -36,6 +36,10 @@ body {
         background-color: #6b57cf; 
         border-color: #6b57cf; 
     }
+
+    .btn-info:active {
+        box-shadow: 0 0 0 0.2rem rgba(177, 127, 255, 0.5);*/ /* Cambia el color de la sombra a lila */
+    /*}*/
 
 #toggleInactiveButton {
     background-color: #b4a7ff;

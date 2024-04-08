@@ -28,15 +28,13 @@ namespace WebGestionClientes.Models
         {
             modelBuilder.Entity<Cliente>(entity =>
             {
-                entity.ToTable("Cliente");
+                entity.ToTable("cliente");
 
-                entity.Property(e => e.Apellido).HasMaxLength(50);
-
-                entity.Property(e => e.Estado).HasMaxLength(10);
-
-                entity.Property(e => e.Nombre).HasMaxLength(50);
-
-                entity.Property(e => e.Saldo).HasColumnType("decimal(10, 2)");
+                entity.Property(e => e.ClienteId).HasColumnName("clienteid");
+                entity.Property(e => e.Apellido).HasColumnName("apellido").HasMaxLength(50);
+                entity.Property(e => e.Estado).HasColumnName("estado").HasMaxLength(10);
+                entity.Property(e => e.Nombre).HasColumnName("nombre").HasMaxLength(50);
+                entity.Property(e => e.Saldo).HasColumnName("saldo").HasColumnType("decimal(10, 2)");
             });
 
             modelBuilder.Entity<CuentaCorriente>(entity =>
@@ -44,15 +42,14 @@ namespace WebGestionClientes.Models
                 entity.HasKey(e => e.MovimientoId)
                     .HasName("PK__CuentaCo__BF923C2C29A1D401");
 
-                entity.ToTable("CuentaCorriente");
+                entity.ToTable("cuentacorriente");
 
-                entity.Property(e => e.Descripcion).HasMaxLength(100);
-
-                entity.Property(e => e.FhMovimiento).HasColumnType("datetime");
-
-                entity.Property(e => e.ImporteCredito).HasColumnType("decimal(10, 2)");
-
-                entity.Property(e => e.ImporteDebito).HasColumnType("decimal(10, 2)");
+                entity.Property(e => e.MovimientoId).HasColumnName("movimientoid");
+                entity.Property(e => e.ClienteId).HasColumnName("clienteid");
+                entity.Property(e => e.Descripcion).HasColumnName("descripcion").HasMaxLength(100);
+                entity.Property(e => e.FhMovimiento).HasColumnName("fhmovimiento").HasColumnType("datetime");
+                entity.Property(e => e.ImporteCredito).HasColumnName("importecredito").HasColumnType("decimal(10, 2)");
+                entity.Property(e => e.ImporteDebito).HasColumnName("importedebito").HasColumnType("decimal(10, 2)");
 
                 entity.HasOne(d => d.Cliente)
                     .WithOne(p => p.CuentaCorriente)
